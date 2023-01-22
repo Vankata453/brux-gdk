@@ -27,143 +27,143 @@
 #include "global.h"
 #include "fileio.h"
 
-/*  Initalize a PhysicsFS error. */
+/* Initalize a PhysicsFS error. */
 PhysFSError::PhysFSError(const std::string& message, const std::string& action) throw() :
-  m_message()
+	m_message()
 {
-  const PHYSFS_ErrorCode code = PHYSFS_getLastErrorCode();
-  m_message = message + ": PHYSFS_" + action + " failed: " +
-              PHYSFS_getErrorByCode(code) + " (" + std::to_string(code) + ")";
+	const PHYSFS_ErrorCode code = PHYSFS_getLastErrorCode();
+	m_message = message + ": PHYSFS_" + action + " failed: " +
+							PHYSFS_getErrorByCode(code) + " (" + std::to_string(code) + ")";
 }
 
 /** File system initialization/destruction. **/
 
 void xyFSInit() {
-  if (!PHYSFS_init(NULL))
-    throw PhysFSError("Cannot initialize PhysicsFS", "init");
+	if (!PHYSFS_init(NULL))
+		throw PhysFSError("Cannot initialize PhysicsFS", "init");
 };
 
 void xyFSDeinit() {
-  if (!PHYSFS_deinit())
-    throw PhysFSError("Cannot properly de-initialize PhysicsFS", "deinit");
+	if (!PHYSFS_deinit())
+		throw PhysFSError("Cannot properly de-initialize PhysicsFS", "deinit");
 };
 
 
 /** General file system management functions. **/
 
 void xyFSMount(const std::string& dir, bool prepend) {
-  if (!PHYSFS_mount(dir.c_str(), NULL, !prepend))
-    throw PhysFSError("Cannot mount '" + dir + "'", "mount");
+	if (!PHYSFS_mount(dir.c_str(), NULL, !prepend))
+		throw PhysFSError("Cannot mount '" + dir + "'", "mount");
 };
 
 void xyFSUnmount(const std::string& dir) {
-  if (!PHYSFS_unmount(dir.c_str()))
-    throw PhysFSError("Cannot unmount '" + dir + "'", "unmount");
+	if (!PHYSFS_unmount(dir.c_str()))
+		throw PhysFSError("Cannot unmount '" + dir + "'", "unmount");
 };
 
 
 std::string xyGetDir() {
-  // Get the current working directory.
-  return getcwd(0, 0);
+	// Get the current working directory.
+	return getcwd(0, 0);
 }
 
 std::string xyGetWriteDir() {
-  const char* write_dir = PHYSFS_getWriteDir();
-  if (write_dir == NULL)
-    return "";
-  else
-    return write_dir;
+	const char* write_dir = PHYSFS_getWriteDir();
+	if (write_dir == NULL)
+		return "";
+	else
+		return write_dir;
 };
 
 std::string xyGetPrefDir(const std::string& org, const std::string& app) {
-  const char* dir = PHYSFS_getPrefDir(org.c_str(), app.c_str());
-  if (dir == NULL)
-    throw PhysFSError("Error getting user-and-app specific directory", "getPrefDir");
+	const char* dir = PHYSFS_getPrefDir(org.c_str(), app.c_str());
+	if (dir == NULL)
+		throw PhysFSError("Error getting user-and-app specific directory", "getPrefDir");
 
-  return dir;
+	return dir;
 };
 
 void xySetWriteDir(const std::string& dir) {
-  // If there is a current write directory, unmount it.
-  const std::string write_dir = xyGetWriteDir();
-  if (!write_dir.empty())
-  {
-    try {
-      xyFSUnmount(write_dir);
-    }
-    catch (const std::exception& err) {
-      std::stringstream out;
-      out << "Error unmounting current write directory: " << err.what();
-      throw std::runtime_error(out.str());
-    }
-  }
+	// If there is a current write directory, unmount it.
+	const std::string write_dir = xyGetWriteDir();
+	if (!write_dir.empty())
+	{
+		try {
+			xyFSUnmount(write_dir);
+		}
+		catch (const std::exception& err) {
+			std::stringstream out;
+			out << "Error unmounting current write directory: " << err.what();
+			throw std::runtime_error(out.str());
+		}
+	}
 
-  if (!PHYSFS_setWriteDir(dir.c_str()))
-    throw PhysFSError("Error setting '" + dir + "' directory as write directory", "setWriteDir");
+	if (!PHYSFS_setWriteDir(dir.c_str()))
+		throw PhysFSError("Error setting '" + dir + "' directory as write directory", "setWriteDir");
 
-  // Mount the write directory, so it prepends to (overrides) files in the search path.
-  try {
-    xyFSMount(dir, true);
-  }
-  catch (const std::exception& err) {
-    std::stringstream out;
-    out << "Error mounting write directory: " << err.what();
-    throw std::runtime_error(out.str());
-  }
+	// Mount the write directory, so it prepends to (overrides) files in the search path.
+	try {
+		xyFSMount(dir, true);
+	}
+	catch (const std::exception& err) {
+		std::stringstream out;
+		out << "Error mounting write directory: " << err.what();
+		throw std::runtime_error(out.str());
+	}
 };
 
 
 void xyCreateDir(const std::string& name) {
-  if (!PHYSFS_mkdir(name.c_str()))
-    throw PhysFSError("Could not create directory '" + name + "'", "mkdir");
+	if (!PHYSFS_mkdir(name.c_str()))
+		throw PhysFSError("Could not create directory '" + name + "'", "mkdir");
 }
 
 std::string xyFileRead(const std::string& file)
 {
-  // Check if the file exists.
-  if (!xyFileExists(file))
-    throw std::runtime_error("File '" + file + "' doesn't exist.");
+	// Check if the file exists.
+	if (!xyFileExists(file))
+		throw std::runtime_error("File '" + file + "' doesn't exist.");
 
-  PHYSFS_file* handle = PHYSFS_openRead(file.c_str());
-  const int length = PHYSFS_fileLength(handle);
+	PHYSFS_file* handle = PHYSFS_openRead(file.c_str());
+	const int length = PHYSFS_fileLength(handle);
 
-  char* buffer = new char[length + 1];
-  buffer[length] = 0; // Terminate string at the end.
-  if (PHYSFS_readBytes(handle, buffer, length) <= 0)
-    throw PhysFSError("Cannot read any data from file '" + file + "'", "readBytes");
+	char* buffer = new char[length + 1];
+	buffer[length] = 0; // Terminate string at the end.
+	if (PHYSFS_readBytes(handle, buffer, length) <= 0)
+		throw PhysFSError("Cannot read any data from file '" + file + "'", "readBytes");
 
-  // Copy the result and delete the pointer.
-  const std::string result = buffer;
-  delete[] buffer;
+	// Copy the result and delete the pointer.
+	const std::string result = buffer;
+	delete[] buffer;
 
-  PHYSFS_close(handle);
-  return result;
+	PHYSFS_close(handle);
+	return result;
 };
 
 void xyFileWrite(const std::string& file, const std::string& data)
 {
-  // If the full path to the file's directory isn't available, create it.
-  xyCreateDir(std::filesystem::path(file).parent_path().string());
+	// If the full path to the file's directory isn't available, create it.
+	xyCreateDir(std::filesystem::path(file).parent_path().string());
 
-  PHYSFS_file* handle = PHYSFS_openWrite(file.c_str());
-  const int length = data.size();
+	PHYSFS_file* handle = PHYSFS_openWrite(file.c_str());
+	const int length = data.size();
 
-  const char* buffer = data.c_str();
-  if (PHYSFS_writeBytes(handle, buffer, length) < length)
-    throw PhysFSError("Cannot write all data to file '" + file + "'", "writeBytes");
+	const char* buffer = data.c_str();
+	if (PHYSFS_writeBytes(handle, buffer, length) < length)
+		throw PhysFSError("Cannot write all data to file '" + file + "'", "writeBytes");
 
-  PHYSFS_close(handle);
+	PHYSFS_close(handle);
 };
 
 void xyFileAppend(const std::string& file, const std::string& data)
 {
-  // If the file currently exists, read its data.
-  std::string file_data;
-  if (xyFileExists(file))
-    file_data = xyFileRead(file);
+	// If the file currently exists, read its data.
+	std::string file_data;
+	if (xyFileExists(file))
+		file_data = xyFileRead(file);
 
-  // Write old and new data.
-  xyFileWrite(file, file_data + data);
+	// Write old and new data.
+	xyFileWrite(file, file_data + data);
 };
 
 bool xyFileExists(const std::string& file) {
@@ -171,11 +171,11 @@ bool xyFileExists(const std::string& file) {
 };
 
 bool xyLegacyFileExists(const std::string& file) {
-  // This function should not be exposed, because it searches beyond PhysicsFS's search path.
-  // Only used for checking if the initial Squirrel file exists.
+	// This function should not be exposed, because it searches beyond PhysicsFS's search path.
+	// Only used for checking if the initial Squirrel file exists.
 
-  struct stat buff;
-  return stat(file.c_str(), &buff) != -1;
+	struct stat buff;
+	return stat(file.c_str(), &buff) != -1;
 }
 
 
@@ -184,24 +184,24 @@ SQInteger sqLsDir(HSQUIRRELVM v) {
 
 	sq_getstring(v, 2, &dir);
 
-  // Create array for results.
-  sq_newarray(v, 0);
+	// Create array for results.
+	sq_newarray(v, 0);
 
-  // Read files and append to array.
+	// Read files and append to array.
 	char **rc = PHYSFS_enumerateFiles(dir);
-  if (rc == NULL) {
-    std::stringstream err;
-    err << "Error enumerating files in directory '" << dir << "'";
-    throw PhysFSError(err.str(), "enumerateFiles");
-  }
-  char **i;
+	if (rc == NULL) {
+		std::stringstream err;
+		err << "Error enumerating files in directory '" << dir << "'";
+		throw PhysFSError(err.str(), "enumerateFiles");
+	}
+	char **i;
 
-  for (i = rc; *i != NULL; i++) {
-    sq_pushstring(v, *i, strlen(*i));
-    sq_arrayappend(v, -2);
-  }
+	for (i = rc; *i != NULL; i++) {
+		sq_pushstring(v, *i, strlen(*i));
+		sq_arrayappend(v, -2);
+	}
 
-  PHYSFS_freeList(rc);
+	PHYSFS_freeList(rc);
 	return 1;
 };
 
@@ -210,13 +210,13 @@ SQInteger sqIsDir(HSQUIRRELVM v) {
 
 	sq_getstring(v, 2, &dir);
 
-  // Get file/directory stats.
-  PHYSFS_Stat stat;
-  PHYSFS_stat(dir, &stat);
+	// Get file/directory stats.
+	PHYSFS_Stat stat;
+	PHYSFS_stat(dir, &stat);
 
 	sq_pushbool(v, stat.filetype == PHYSFS_FILETYPE_DIRECTORY);
 
-  return 1;
+	return 1;
 };
 
 
