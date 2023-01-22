@@ -27,6 +27,7 @@ void xyFSDeinit();
 /** General file system management functions. **/
 void xyFSMount(const std::string& dir, bool prepend);
 
+std::string xyGetDir();
 std::string xyGetWriteDir();
 std::string xyGetPrefDir(const std::string& org, const std::string& app);
 void xySetWriteDir(const std::string& dir);
@@ -34,7 +35,8 @@ void xySetWriteDir(const std::string& dir);
 std::string xyFileRead(const std::string& file);
 void xyFileWrite(const std::string& file, const std::string& data);
 void xyFileAppend(const std::string& file, const std::string& data);
-bool xyFileExists(const char* file);
+bool xyFileExists(const std::string& file);
+bool xyLegacyFileExists(const std::string& file);
 
 SQInteger sqLsDir(HSQUIRRELVM v);
 SQInteger sqIsDir(HSQUIRRELVM v);

@@ -189,6 +189,14 @@ SQInteger sqMount(HSQUIRRELVM v) {
   return 0;
 };
 
+SQInteger sqGetDir(HSQUIRRELVM v) {
+	const char* buff = xyGetDir().c_str();
+
+	sq_pushstring(v, buff, strlen(buff));
+
+	return 1;
+};
+
 SQInteger sqGetWriteDir(HSQUIRRELVM v) {
 	const char* buff = xyGetWriteDir().c_str();
 

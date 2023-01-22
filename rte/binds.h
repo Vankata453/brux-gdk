@@ -32,6 +32,7 @@ SQInteger sqImport(HSQUIRRELVM v);
 SQInteger sqDoNut(HSQUIRRELVM v);
 SQInteger sqDoString(HSQUIRRELVM v);
 SQInteger sqMount(HSQUIRRELVM v);
+SQInteger sqGetDir(HSQUIRRELVM v);
 SQInteger sqGetWriteDir(HSQUIRRELVM v);
 SQInteger sqGetPrefDir(HSQUIRRELVM v);
 SQInteger sqSetWriteDir(HSQUIRRELVM v);

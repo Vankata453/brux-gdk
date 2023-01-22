@@ -64,16 +64,15 @@ int main(int argc, char* argv[]) {
 				//If the input is a Squirrel file
 				if(curarg.substr(curarg.find_last_of('.')) == ".sq" || curarg.substr(curarg.find_last_of('.')) == ".nut" || curarg.substr(curarg.find_last_of('.')) == ".brx"){
 					//Check that the file really exists
-					if(xyFileExists(curarg.c_str())) {
+					if(xyLegacyFileExists(curarg)) {
 						//All checks pass, assign the file
 						char tmpstr[64];
-						xygapp = curarg.c_str();
+						xygapp = curarg;
 						size_t found = xygapp.find_last_of("/\\");
 						gvWorkDir = xygapp.substr(0, found);
 						chdir(gvWorkDir.c_str());
-						char* curdir = getcwd(0,0);
-						xyPrint(0, "Working directory: %s", curdir);
-						delete curdir;
+						const std::string curdir = xyGetDir();
+						xyPrint(0, "Working directory: %s", curdir.c_str());
 					}
 				}
 			}
@@ -85,11 +84,15 @@ int main(int argc, char* argv[]) {
 
 	SDL_ShowCursor(0);
 
+  //Mount the current working directory.
+  xyFSMount(xyGetDir(), true);
+
 	//Run app
 	if(xygapp != "") {
 		xyPrint(0, "Running %s...", xygapp.c_str());
 		sqstd_dofile(gvSquirrel, xygapp.c_str(), 0, 1);
-	} else {
+	}
+  else {
 		if(xyFileExists("test.nut")) sqstd_dofile(gvSquirrel, "test.nut", 0, 1);
 		else if(xyFileExists("game.brx")) sqstd_dofile(gvSquirrel, "game.brx", 0, 1);
 	}
@@ -424,6 +427,7 @@ void xyBindAllFunctions(HSQUIRRELVM v) {
   xyBindFunc(v, sqImport, "import", 2, ".s");
   xyBindFunc(v, sqDoString, "dostr", 2, ".s"); //Doc'd
   xyBindFunc(v, sqMount, "mount", 2, ".s");
+  xyBindFunc(v, sqGetDir, "getdir"); //Doc'd
   xyBindFunc(v, sqGetWriteDir, "getWriteDir");
   xyBindFunc(v, sqGetPrefDir, "getPrefDir", 3, ".ss");
   xyBindFunc(v, sqSetWriteDir, "setWriteDir", 2, ".s");

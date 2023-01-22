@@ -38,6 +38,11 @@ void xyFSMount(const std::string& dir, bool prepend) {
 };
 
 
+std::string xyGetDir() {
+  // Get the current working directory.
+  return getcwd(0, 0);
+}
+
 std::string xyGetWriteDir() {
   return PHYSFS_getWriteDir();
 };
@@ -52,7 +57,17 @@ std::string xyGetPrefDir(const std::string& org, const std::string& app) {
 
 void xySetWriteDir(const std::string& dir) {
   if (!PHYSFS_setWriteDir(dir.c_str()))
-    throw PhysFSError("Error setting user data directory as write directory", "setWriteDir");
+    throw PhysFSError("Error setting '" + dir + "' directory as write directory", "setWriteDir");
+
+  try {
+    // Mount the write directory, so it prepends to (overrides) files in the search path.
+    xyFSMount(dir, true);
+  }
+  catch (const std::exception& err) {
+    std::stringstream out;
+    out << "Error mounting write directory: " << err.what();
+    throw std::runtime_error(out.str());
+  }
 };
 
 
@@ -98,9 +113,17 @@ void xyFileAppend(const std::string& file, const std::string& data)
   xyFileWrite(file, file_data + data);
 };
 
-bool xyFileExists(const char* file) {
-	return PHYSFS_exists(file);
+bool xyFileExists(const std::string& file) {
+	return PHYSFS_exists(file.c_str());
 };
+
+bool xyLegacyFileExists(const std::string& file) {
+  // This function should not be exposed, because it searches beyond PhysicsFS's search path.
+  // Only used for checking if the initial Squirrel file exists.
+
+  struct stat buff;
+  return stat(file.c_str(), &buff) != -1;
+}
 
 
 SQInteger sqLsDir(HSQUIRRELVM v) {
