@@ -189,18 +189,28 @@ SQInteger sqMount(HSQUIRRELVM v) {
   return 0;
 };
 
-SQInteger sqGetDir(HSQUIRRELVM v) {
-	const char* buff = xyGetDir().c_str();
+SQInteger sqUnmount(HSQUIRRELVM v) {
+  const char* dir;
 
-	sq_pushstring(v, buff, strlen(buff));
+  sq_getstring(v, 2, &dir);
+
+  xyFSUnmount(dir);
+
+  return 0;
+};
+
+SQInteger sqGetDir(HSQUIRRELVM v) {
+	const std::string data = xyGetDir();
+
+	sq_pushstring(v, data.c_str(), data.size());
 
 	return 1;
 };
 
 SQInteger sqGetWriteDir(HSQUIRRELVM v) {
-	const char* buff = xyGetWriteDir().c_str();
+	const std::string data = xyGetWriteDir();
 
-	sq_pushstring(v, buff, strlen(buff));
+	sq_pushstring(v, data.c_str(), data.size());
 
 	return 1;
 };
@@ -212,9 +222,9 @@ SQInteger sqGetPrefDir(HSQUIRRELVM v) {
 	sq_getstring(v, 2, &org);
 	sq_getstring(v, 3, &app);
 
-  const char* buff = xyGetPrefDir(org, app).c_str();
+  const std::string data = xyGetPrefDir(org, app);
 
-	sq_pushstring(v, buff, strlen(buff));
+	sq_pushstring(v, data.c_str(), data.size());
 
 	return 1;
 };
@@ -225,6 +235,16 @@ SQInteger sqSetWriteDir(HSQUIRRELVM v) {
 	sq_getstring(v, 2, &dir);
 
 	xySetWriteDir(dir);
+
+	return 0;
+};
+
+SQInteger sqCreateDir(HSQUIRRELVM v) {
+	const char* name;
+
+	sq_getstring(v, 2, &name);
+
+	xyCreateDir(name);
 
 	return 0;
 };

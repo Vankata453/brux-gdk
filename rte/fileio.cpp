@@ -1,8 +1,27 @@
+//  Brux - File I/O
+//  Copyright (C) 2016 KelvinShadewing
+//                2023 Vankata453
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Affero General Public License for more details.
+//
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 /*===============*\
 | FILE I/O SOURCE |
 \*===============*/
 
 #include <physfs.h>
+
+#include <filesystem>
 
 #include "main.h"
 #include "global.h"
@@ -34,7 +53,12 @@ void xyFSDeinit() {
 
 void xyFSMount(const std::string& dir, bool prepend) {
   if (!PHYSFS_mount(dir.c_str(), NULL, !prepend))
-    throw PhysFSError("Cannot mount '" + dir + "' directory", "mount");
+    throw PhysFSError("Cannot mount '" + dir + "'", "mount");
+};
+
+void xyFSUnmount(const std::string& dir) {
+  if (!PHYSFS_unmount(dir.c_str()))
+    throw PhysFSError("Cannot unmount '" + dir + "'", "unmount");
 };
 
 
@@ -44,7 +68,11 @@ std::string xyGetDir() {
 }
 
 std::string xyGetWriteDir() {
-  return PHYSFS_getWriteDir();
+  const char* write_dir = PHYSFS_getWriteDir();
+  if (write_dir == NULL)
+    return "";
+  else
+    return write_dir;
 };
 
 std::string xyGetPrefDir(const std::string& org, const std::string& app) {
@@ -56,11 +84,25 @@ std::string xyGetPrefDir(const std::string& org, const std::string& app) {
 };
 
 void xySetWriteDir(const std::string& dir) {
+  // If there is a current write directory, unmount it.
+  const std::string write_dir = xyGetWriteDir();
+  if (!write_dir.empty())
+  {
+    try {
+      xyFSUnmount(write_dir);
+    }
+    catch (const std::exception& err) {
+      std::stringstream out;
+      out << "Error unmounting current write directory: " << err.what();
+      throw std::runtime_error(out.str());
+    }
+  }
+
   if (!PHYSFS_setWriteDir(dir.c_str()))
     throw PhysFSError("Error setting '" + dir + "' directory as write directory", "setWriteDir");
 
+  // Mount the write directory, so it prepends to (overrides) files in the search path.
   try {
-    // Mount the write directory, so it prepends to (overrides) files in the search path.
     xyFSMount(dir, true);
   }
   catch (const std::exception& err) {
@@ -71,26 +113,38 @@ void xySetWriteDir(const std::string& dir) {
 };
 
 
+void xyCreateDir(const std::string& name) {
+  if (!PHYSFS_mkdir(name.c_str()))
+    throw PhysFSError("Could not create directory '" + name + "'", "mkdir");
+}
+
 std::string xyFileRead(const std::string& file)
 {
   // Check if the file exists.
-  if (!PHYSFS_exists(file.c_str()))
+  if (!xyFileExists(file))
     throw std::runtime_error("File '" + file + "' doesn't exist.");
 
   PHYSFS_file* handle = PHYSFS_openRead(file.c_str());
   const int length = PHYSFS_fileLength(handle);
 
-  char* buffer = new char[length];
+  char* buffer = new char[length + 1];
+  buffer[length] = 0; // Terminate string at the end.
   if (PHYSFS_readBytes(handle, buffer, length) <= 0)
     throw PhysFSError("Cannot read any data from file '" + file + "'", "readBytes");
 
-  const std::string str = buffer;
+  // Copy the result and delete the pointer.
+  const std::string result = buffer;
+  delete[] buffer;
+
   PHYSFS_close(handle);
-  return str;
+  return result;
 };
 
 void xyFileWrite(const std::string& file, const std::string& data)
 {
+  // If the full path to the file's directory isn't available, create it.
+  xyCreateDir(std::filesystem::path(file).parent_path().string());
+
   PHYSFS_file* handle = PHYSFS_openWrite(file.c_str());
   const int length = data.size();
 
@@ -105,9 +159,8 @@ void xyFileAppend(const std::string& file, const std::string& data)
 {
   // If the file currently exists, read its data.
   std::string file_data;
-  if (PHYSFS_exists(file.c_str())) {
+  if (xyFileExists(file))
     file_data = xyFileRead(file);
-  }
 
   // Write old and new data.
   xyFileWrite(file, file_data + data);
@@ -136,16 +189,14 @@ SQInteger sqLsDir(HSQUIRRELVM v) {
 
   // Read files and append to array.
 	char **rc = PHYSFS_enumerateFiles(dir);
-  if (rc == NULL)
-  {
+  if (rc == NULL) {
     std::stringstream err;
     err << "Error enumerating files in directory '" << dir << "'";
     throw PhysFSError(err.str(), "enumerateFiles");
   }
   char **i;
 
-  for (i = rc; *i != NULL; i++)
-  {
+  for (i = rc; *i != NULL; i++) {
     sq_pushstring(v, *i, strlen(*i));
     sq_arrayappend(v, -2);
   }
