@@ -2,19 +2,151 @@
 | FILE I/O SOURCE |
 \*===============*/
 
-
+#include <physfs.h>
 
 #include "main.h"
 #include "global.h"
 #include "fileio.h"
 
-bool xyFileExists(const char* file) {
-	//Checks if a file exists
-	struct stat buff;
-	if (stat(file, &buff) != -1) return true;
+/*  Initalize a PhysicsFS error. */
+PhysFSError::PhysFSError(const std::string& message, const std::string& action) throw() :
+  m_message()
+{
+  const PHYSFS_ErrorCode code = PHYSFS_getLastErrorCode();
+  m_message = message + ": PHYSFS_" + action + " failed: " +
+              PHYSFS_getErrorByCode(code) + " (" + std::to_string(code) + ")";
+}
 
-	return false;
+/** File system initialization/destruction. **/
+
+void xyFSInit() {
+  if (!PHYSFS_init(NULL))
+    throw PhysFSError("Cannot initialize PhysicsFS", "init");
 };
+
+void xyFSDeinit() {
+  if (!PHYSFS_deinit())
+    throw PhysFSError("Cannot properly de-initialize PhysicsFS", "deinit");
+};
+
+
+/** General file system management functions. **/
+
+void xyFSMount(const std::string& dir, bool prepend) {
+  if (!PHYSFS_mount(dir.c_str(), NULL, !prepend))
+    throw PhysFSError("Cannot mount '" + dir + "' directory", "mount");
+};
+
+
+std::string xyGetWriteDir() {
+  return PHYSFS_getWriteDir();
+};
+
+std::string xyGetPrefDir(const std::string& org, const std::string& app) {
+  const char* dir = PHYSFS_getPrefDir(org.c_str(), app.c_str());
+  if (dir == NULL)
+    throw PhysFSError("Error getting user-and-app specific directory", "getPrefDir");
+
+  return dir;
+};
+
+void xySetWriteDir(const std::string& dir) {
+  if (!PHYSFS_setWriteDir(dir.c_str()))
+    throw PhysFSError("Error setting user data directory as write directory", "setWriteDir");
+};
+
+
+std::string xyFileRead(const std::string& file)
+{
+  // Check if the file exists.
+  if (!PHYSFS_exists(file.c_str()))
+    throw std::runtime_error("File '" + file + "' doesn't exist.");
+
+  PHYSFS_file* handle = PHYSFS_openRead(file.c_str());
+  const int length = PHYSFS_fileLength(handle);
+
+  char* buffer = new char[length];
+  if (PHYSFS_readBytes(handle, buffer, length) <= 0)
+    throw PhysFSError("Cannot read any data from file '" + file + "'", "readBytes");
+
+  const std::string str = buffer;
+  PHYSFS_close(handle);
+  return str;
+};
+
+void xyFileWrite(const std::string& file, const std::string& data)
+{
+  PHYSFS_file* handle = PHYSFS_openWrite(file.c_str());
+  const int length = data.size();
+
+  const char* buffer = data.c_str();
+  if (PHYSFS_writeBytes(handle, buffer, length) < length)
+    throw PhysFSError("Cannot write all data to file '" + file + "'", "writeBytes");
+
+  PHYSFS_close(handle);
+};
+
+void xyFileAppend(const std::string& file, const std::string& data)
+{
+  // If the file currently exists, read its data.
+  std::string file_data;
+  if (PHYSFS_exists(file.c_str())) {
+    file_data = xyFileRead(file);
+  }
+
+  // Write old and new data.
+  xyFileWrite(file, file_data + data);
+};
+
+bool xyFileExists(const char* file) {
+	return PHYSFS_exists(file);
+};
+
+
+SQInteger sqLsDir(HSQUIRRELVM v) {
+	const char* dir;
+
+	sq_getstring(v, 2, &dir);
+
+  // Create array for results.
+  sq_newarray(v, 0);
+
+  // Read files and append to array.
+	char **rc = PHYSFS_enumerateFiles(dir);
+  if (rc == NULL)
+  {
+    std::stringstream err;
+    err << "Error enumerating files in directory '" << dir << "'";
+    throw PhysFSError(err.str(), "enumerateFiles");
+  }
+  char **i;
+
+  for (i = rc; *i != NULL; i++)
+  {
+    sq_pushstring(v, *i, strlen(*i));
+    sq_arrayappend(v, -2);
+  }
+
+  PHYSFS_freeList(rc);
+	return 1;
+};
+
+SQInteger sqIsDir(HSQUIRRELVM v) {
+	const char* dir;
+
+	sq_getstring(v, 2, &dir);
+
+  // Get file/directory stats.
+  PHYSFS_Stat stat;
+  PHYSFS_stat(dir, &stat);
+
+	sq_pushbool(v, stat.filetype == PHYSFS_FILETYPE_DIRECTORY);
+
+  return 1;
+};
+
+
+/** JSON encoding/decoding. **/
 
 // Credit to Nova Storm for the JSON encoding and decoding functions
 
@@ -85,49 +217,3 @@ SQInteger sqDecodeJSON(HSQUIRRELVM v) {
 	cJSON_Delete(Root);
 	return 1;
 }
-
-SQInteger sqLsDir(HSQUIRRELVM v) {
-	const SQChar *dir;
-	sq_getstring(v, 2, &dir);
-
-	//Get the current directory
-	DIR *folder;
-	struct dirent *entry;
-	std::string s_entry;
-
-	folder = opendir(dir);
-	if(folder == NULL) {
-		xyPrint(0, "Failed to open directory: %s\n", dir);
-		sq_pushstring(v, "", 0);
-		return 1;
-	} else {
-		sq_newarray(v, 0);
-        entry = readdir(folder);
-        while(entry) {
-			s_entry = entry->d_name;
-			sq_pushstring(v, s_entry.c_str(), s_entry.length());
-			sq_arrayappend(v, -2);
-            entry = readdir(folder);
-        }
-	}
-
-	closedir(folder);
-	return 1;
-};
-
-SQInteger sqIsDir(HSQUIRRELVM v) {
-	const SQChar *dir;
-	sq_getstring(v, 2, &dir);
-	struct stat info;
-
-	if(stat(dir, &info) != 0) {
-		sq_pushbool(v, false);
-		return 1;
-	} else if(info.st_mode & S_IFDIR) {
-		sq_pushbool(v, true);
-		return 1;
-	} else {
-		sq_pushbool(v, false);
-		return 1;
-	}
-};

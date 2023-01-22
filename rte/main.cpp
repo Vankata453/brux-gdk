@@ -114,6 +114,10 @@ int xyInit() {
 	xyPrint(0, "\n/========================\\\n| BRUX GAME RUNTIME LOG |\n\\========================/\n\n");
 	xyPrint(0, "Initializing program...\n\n");
 
+  //Initialize the file system (PhysFS)
+  xyPrint(0, "Initializing file system...");
+  xyFSInit();
+
 	//Initiate SDL
 	SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");
 #ifdef __EMSCRIPTEN__
@@ -249,6 +253,10 @@ void xyEnd(){
 	IMG_Quit();
 	Mix_Quit();
 	SDL_Quit();
+
+  //Destroy the file system (PhysFS)
+  xyPrint(0, "Closing file system...");
+  xyFSDeinit();
 
 	//Close log file
 	xyPrint(0, "System closed successfully!");
@@ -413,17 +421,19 @@ void xyBindAllFunctions(HSQUIRRELVM v) {
 
 	//File IO
 	xyPrint(0, "Embedding file I/O...");
-	xyBindFunc(v, sqFileExists, "fileExists", 2, ".s"); //Doc'd
-	xyBindFunc(v, sqImport, "import", 2, ".s");
-	xyBindFunc(v, sqDoString, "dostr", 2, ".s"); //Doc'd
+  xyBindFunc(v, sqImport, "import", 2, ".s");
+  xyBindFunc(v, sqDoString, "dostr", 2, ".s"); //Doc'd
+  xyBindFunc(v, sqMount, "mount", 2, ".s");
+  xyBindFunc(v, sqGetWriteDir, "getWriteDir");
+  xyBindFunc(v, sqGetPrefDir, "getPrefDir", 3, ".ss");
+  xyBindFunc(v, sqSetWriteDir, "setWriteDir", 2, ".s");
+  xyBindFunc(v, sqFileRead, "fileRead", 2, ".s"); //Doc'd
+	xyBindFunc(v, sqFileWrite, "fileWrite", 3, ".ss"); //Doc'd
+  xyBindFunc(v, sqFileAppend, "fileAppend", 3, ".ss"); //Doc'd
+  xyBindFunc(v, sqFileExists, "fileExists", 3, ".s"); //Doc'd
 	xyBindFunc(v, sqDecodeJSON, "jsonRead", 2, ".s"); //Doc'd
-	xyBindFunc(v, sqGetDir, "getdir"); //Doc'd
-	xyBindFunc(v, sqSetDir, "chdir", 2, ".s"); //Doc'd
 	xyBindFunc(v, sqLsDir, "lsdir", 2, ".s"); //Doc'd
 	xyBindFunc(v, sqIsDir, "isdir", 2, ".s"); //Doc'd
-	xyBindFunc(v, sqFileWrite, "fileWrite", 3, ".ss"); //Doc'd
-	xyBindFunc(v, sqFileAppend, "fileAppend", 3, ".ss"); //Doc'd
-	xyBindFunc(v, sqFileRead, "fileRead", 2, ".s"); //Doc'd
 
 	//Audio
 	xyPrint(0, "Embedding audio...");
