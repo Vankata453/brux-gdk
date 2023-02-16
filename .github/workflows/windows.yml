@@ -20,6 +20,9 @@ jobs:
           - build_type: Release
             arch: x64
             release: ON
+          - build_type: Release
+            arch: x86
+            release: ON
 
     runs-on: windows-latest
     steps:
