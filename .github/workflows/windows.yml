@@ -52,8 +52,7 @@ jobs:
           cd rte
           mkdir build
           cd build
-          cmake .. -G "Visual Studio 17 2022" -A $Env:ARCH.replace("x86", "Win32") \
-            -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+          cmake .. -G "Visual Studio 17 2022" -A $Env:ARCH.replace("x86", "Win32") -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
       - name: Build
         working-directory: rte/build
