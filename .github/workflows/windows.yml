@@ -27,7 +27,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 1
-          submodules: true
 
       - name: Install dependencies
         env:
@@ -35,35 +34,26 @@ jobs:
         run: |
           vcpkg integrate install
           vcpkg install sdl2:$Env:ARCH-windows
-          vcpkg install sdl2-gfx:$Env:ARCH-windows
-          vcpkg install sdl2-net:$Env:ARCH-windows
-          vcpkg install physfs:$Env:ARCH-windows
+          vcpkg install sdl2-image:$Env:ARCH-windows
+          vcpkg install sdl2-mixer:$Env:ARCH-windows
 
-      - name: Download manual dependencies
+      - name: Install SDL2_image
+        env:
+          ARCH: ${{ matrix.arch }}
         run: |
           mkdir manual
           cd manual
           C:\msys64\usr\bin\wget.exe https://github.com/libsdl-org/SDL_image/releases/download/release-2.6.3/SDL2_image-devel-2.6.3-VC.zip
-          C:\msys64\usr\bin\wget.exe https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.6.3/SDL2_mixer-devel-2.6.3-VC.zip
+          copy SDL2_image-2.6.3\lib\$Env:ARCH\*.lib C:\vcpkg\installed\$Env:ARCH-windows\lib
+          copy SDL2_image-2.6.3\lib\$Env:ARCH\*.dll C:\vcpkg\installed\$Env:ARCH-windows\bin
+          copy SDL2_image-2.6.3\include\*.h C:\vcpkg\installed\$Env:ARCH-windows\include\SDL2
 
-      - name: Extract manual dependencies
-        uses: montudor/action-zip@v1
-        with:
-          args: unzip -qq manual/SDL2_image-devel-2.6.3-VC.zip -d manual
-      - uses: montudor/action-zip@v1
-        with:
-          args: unzip -qq manual/SDL2_mixer-devel-2.6.3-VC.zip -d manual
-
-      - name: Include manual dependencies
+      - name: Install SDL2_mixer
         working-directory: manual
         env:
           ARCH: ${{ matrix.arch }}
         run: |
-          echo Copying SDL2_image library.
-          copy SDL2_image-2.6.3\lib\$Env:ARCH\*.lib C:\vcpkg\installed\$Env:ARCH-windows\lib
-          copy SDL2_image-2.6.3\lib\$Env:ARCH\*.dll C:\vcpkg\installed\$Env:ARCH-windows\bin
-          copy SDL2_image-2.6.3\include\*.h C:\vcpkg\installed\$Env:ARCH-windows\include\SDL2
-          echo Copying SDL2_mixer library.
+          C:\msys64\usr\bin\wget.exe https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.6.3/SDL2_mixer-devel-2.6.3-VC.zip
           copy SDL2_mixer-2.6.3\lib\$Env:ARCH\*.lib C:\vcpkg\installed\$Env:ARCH-windows\lib
           copy SDL2_mixer-2.6.3\lib\$Env:ARCH\*.dll C:\vcpkg\installed\$Env:ARCH-windows\bin
           copy SDL2_mixer-2.6.3\include\*.h C:\vcpkg\installed\$Env:ARCH-windows\include\SDL2
