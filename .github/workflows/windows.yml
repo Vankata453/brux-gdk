@@ -44,12 +44,13 @@ jobs:
       - name: Configure bulid
         run: |
           cmake --version
+          cd rte
           mkdir build
           cd build
           cmake .. -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
       - name: Build
-        working-directory: build
+        working-directory: rte/build
         env:
           BUILD_TYPE: ${{ matrix.build_type }}
         run: |
@@ -59,4 +60,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: "Brux-Windows-${{ matrix.arch }}-${{ matrix.build_type }}-binary"
-          path: "build/${{ matrix.build_type }}"
+          path: "rte/build/${{ matrix.build_type }}"
