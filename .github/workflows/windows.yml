@@ -27,7 +27,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
           submodules: true
@@ -60,9 +60,10 @@ jobs:
           BUILD_TYPE: ${{ matrix.build_type }}
         run: |
           cmake --build . --config $Env:BUILD_TYPE
+          copy ..\test\* $Env:BUILD_TYPE
 
       - name: Package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: "Brux-Windows-${{ matrix.arch }}-${{ matrix.build_type }}-binary"
           path: "rte/build/${{ matrix.build_type }}"
