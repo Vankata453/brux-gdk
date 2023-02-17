@@ -80,6 +80,6 @@ jobs:
           cmake .. $ARCH
 
       - name: Build and install
-        working-directory: build
+        working-directory: rte/build
         run: |
           make
