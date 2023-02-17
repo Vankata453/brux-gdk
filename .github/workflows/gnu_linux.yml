@@ -24,7 +24,7 @@ jobs:
             arch: 64
             release: ON
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -35,7 +35,6 @@ jobs:
       - name: Install 32-bit dependencies
         if: ${{ matrix.arch == 32 }}
         run: |
-          sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y \
             cmake \
@@ -47,7 +46,6 @@ jobs:
             libsdl2-mixer-dev:i386 \
             libsdl2-net-dev:i386 \
             libphysfs-dev
-          sudo apt install --fix-broken
 
       - name: Install 64-bit dependencies
         if: ${{ matrix.arch == 64 }}
