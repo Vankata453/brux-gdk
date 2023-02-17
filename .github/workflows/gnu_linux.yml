@@ -1,0 +1,82 @@
+name: GNU/Linux
+on:
+  push:
+    branches: [ "master", "unstable" ]
+    paths:
+      - rte/src/*
+  pull_request:
+    branches: [ "master", "unstable" ]
+    paths:
+      - rte/src/*
+  workflow_dispatch:
+
+jobs:
+  gnu-linux:
+    strategy:
+      matrix:
+        arch: [32, 64]
+        build_type: [Release]
+        include:
+          - build_type: Release
+            arch: 32
+            release: ON
+          - build_type: Release
+            arch: 64
+            release: ON
+
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          submodules: true
+
+      - name: Install 32-bit dependencies
+        if: ${{ matrix.arch == 32 }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            build-essential \
+            libc++-dev:i386 \
+            libsdl2-dev:i386 \
+            libsdl2-image-dev:i386 \
+            libsdl2-gfx-dev:i386 \
+            libsdl2-mixer-dev:i386 \
+            libsdl2-net-dev:i386 \
+            libphysfs-dev
+
+      - name: Install 64-bit dependencies
+        if: ${{ matrix.arch == 64 }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            build-essential \
+            libc++-dev \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-gfx-dev \
+            libsdl2-mixer-dev \
+            libsdl2-net-dev \
+            libphysfs-dev
+
+      - name: Set compiler (gcc)
+        run: |
+          echo "CXX=g++" >> $GITHUB_ENV
+          echo "CC=gcc" >> $GITHUB_ENV
+
+      - name: Configure build
+        run: |
+          cmake --version
+          $CXX --version
+          cd rte
+          mkdir build
+          cd build
+          cmake ..
+
+      - name: Build and install
+        working-directory: build
+        run: |
+          make
