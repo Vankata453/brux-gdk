@@ -70,14 +70,14 @@ jobs:
 
       - name: Configure build
         env:
-          ARCH: ${{ matrix.arch }}
+          ARCH: ${{ matrix.arch == 32 && '-DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32' || '' }}
         run: |
           cmake --version
           $CXX --version
           cd rte
           mkdir build
           cd build
-          cmake .. -DCMAKE_CXX_FLAGS="-m$Env:ARCH"
+          cmake .. $ARCH
 
       - name: Build and install
         working-directory: build
