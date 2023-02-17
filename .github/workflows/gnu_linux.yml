@@ -47,6 +47,7 @@ jobs:
             libsdl2-mixer-dev:i386 \
             libsdl2-net-dev:i386 \
             libphysfs-dev
+          sudo apt install --fix-broken
 
       - name: Install 64-bit dependencies
         if: ${{ matrix.arch == 64 }}
