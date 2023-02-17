@@ -39,7 +39,7 @@ jobs:
           path: |
             C:/vcpkg/installed
             C:/vcpkg/ports
-          key: ${{ runner.os }-${{ matrix.arch }}-${{ matrix.build_type }}-dependencies-${{ hashFiles(".github/workflows/windows.yml") }}
+          key: ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.build_type }}-dependencies-${{ hashFiles(".github/workflows/windows.yml") }}
 
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit != "true"
