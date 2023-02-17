@@ -32,7 +32,17 @@ jobs:
           fetch-depth: 1
           submodules: true
 
+      - name: Use cached dependencies
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:/vcpkg/installed
+            C:/vcpkg/ports
+          key: ${{ runner.os }-${{ matrix.arch }}-${{ matrix.build_type }}-dependencies-${{ hashFiles(".github/workflows/windows.yml") }}
+
       - name: Install dependencies
+        if: steps.cache-dependencies.outputs.cache-hit != "true"
         env:
           ARCH: ${{ matrix.arch }}
         run: |
