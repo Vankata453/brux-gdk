@@ -57,6 +57,8 @@ jobs:
           sudo apt-get install -y \
             cmake \
             build-essential \
+            gcc-multilib \
+            g++-multilib \
             libc++-dev \
             libsdl2-dev \
             libsdl2-image-dev \
