@@ -75,8 +75,7 @@ jobs:
             libsdl2-image-dev \
             libsdl2-gfx-dev \
             libsdl2-mixer-dev \
-            libsdl2-net-dev \
-            libphysfs-dev
+            libsdl2-net-dev
 
       - name: Set compiler (gcc)
         run: |
