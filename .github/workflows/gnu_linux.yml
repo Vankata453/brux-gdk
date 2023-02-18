@@ -38,9 +38,8 @@ jobs:
           sudo dpkg --add-architecture i386
           sudo apt-get update
 
-          # The Ubuntu 20.04 GitHub image adds a lot of unnecessary
-          # deb.sury.org packages into ubuntu-20.04, this causes
-          # issues installing dependencies for SDL2 and SDL2-mixer.
+          # The Ubuntu 20.04 GitHub image adds a lot of unnecessary deb.sury.org packages,
+          # which causes issues installing dependencies for SDL2 and SDL2-mixer.
           # Remove all that and downgrade to official versions.
           sudo apt-get remove --yes php.*
           sudo apt-get install --yes --allow-downgrades \
@@ -55,7 +54,6 @@ jobs:
             build-essential \
             gcc-multilib \
             g++-multilib \
-            libc++-dev:i386 \
             libsdl2-dev:i386 \
             libsdl2-image-dev:i386 \
             libsdl2-gfx-dev:i386 \
