@@ -15,19 +15,13 @@ jobs:
     strategy:
       matrix:
         arch: [32, 64]
-        os: [ubuntu-18.04, ubuntu-20.04]
         build_type: [Release]
         include:
           - build_type: Release
-            arch: 32
-            os: ubuntu-18.04
-            release: ON
-          - build_type: Release
             arch: 64
-            os: ubuntu-20.04
             release: ON
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
