@@ -37,6 +37,19 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
+
+          # The Ubuntu 20.04 GitHub image adds a lot of unnecessary
+          # deb.sury.org packages into ubuntu-20.04, this causes
+          # issues installing dependencies for SDL2 and SDL2-mixer.
+          # Remove all that and downgrade to official versions.
+          sudo apt-get remove --yes php.*
+          sudo apt-get install --yes --allow-downgrades \
+            libpcre2-16-0:amd64=10.34-7 \
+            libpcre2-32-0:amd64=10.34-7 \
+            libpcre2-8-0:amd64=10.34-7 \
+            libpcre2-dev:amd64=10.34-7 \
+            libpcre2-posix2:amd64=10.34-7
+
           sudo apt-get install -y \
             cmake \
             build-essential \
@@ -76,13 +89,15 @@ jobs:
       - name: Configure build
         env:
           ARCH: ${{ matrix.arch == 32 && '-DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32' || '' }}
+          BUILD_TYPE: ${{ matrix.build_type }}
         run: |
           cmake --version
           $CXX --version
           cd rte
           mkdir build
           cd build
-          cmake .. $ARCH -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin
+          cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE $ARCH   \
+                   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin
           cp -r ../test/* bin
 
       - name: Build
