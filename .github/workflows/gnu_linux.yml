@@ -14,7 +14,7 @@ jobs:
   gnu-linux:
     strategy:
       matrix:
-        arch: [32, 64]
+        arch: [64]
         build_type: [Release]
         include:
           - build_type: Release
