@@ -79,9 +79,16 @@ jobs:
           cd rte
           mkdir build
           cd build
-          cmake .. $ARCH
+          cmake .. $ARCH -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin
+          cp -r ../test/* bin
 
       - name: Build
         working-directory: rte/build
         run: |
           make
+
+      - name: Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: "Brux-GNULinux-${{ matrix.arch }}-${{ matrix.build_type }}-binary"
+          path: "rte/build/bin"
