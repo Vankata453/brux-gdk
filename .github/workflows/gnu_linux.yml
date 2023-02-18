@@ -58,8 +58,7 @@ jobs:
             libsdl2-image-dev:i386 \
             libsdl2-gfx-dev:i386 \
             libsdl2-mixer-dev:i386 \
-            libsdl2-net-dev:i386 \
-            libphysfs-dev
+            libsdl2-net-dev:i386
 
       - name: Install 64-bit dependencies
         if: ${{ matrix.arch == 64 }}
