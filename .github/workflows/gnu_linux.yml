@@ -15,16 +15,19 @@ jobs:
     strategy:
       matrix:
         arch: [32, 64]
+        os: [ubuntu-18.04, ubuntu-20.04]
         build_type: [Release]
         include:
           - build_type: Release
             arch: 32
+            os: ubuntu-18.04
             release: ON
           - build_type: Release
             arch: 64
+            os: ubuntu-20.04
             release: ON
 
-    runs-on: ubuntu-18.04
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -84,7 +87,7 @@ jobs:
           cd build
           cmake .. $ARCH
 
-      - name: Build and install
+      - name: Build
         working-directory: rte/build
         run: |
           make
