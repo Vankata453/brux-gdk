@@ -58,7 +58,11 @@ jobs:
             libsdl2-image-dev:i386 \
             libsdl2-gfx-dev:i386 \
             libsdl2-mixer-dev:i386 \
-            libsdl2-net-dev:i386
+            libsdl2-net-dev:i386 \
+            libflac-dev:i386 \
+            libjpeg-dev:i386 \
+            libtiff-dev:i386 \
+            libfluidsynth-dev:i386
 
       - name: Install 64-bit dependencies
         if: ${{ matrix.arch == 64 }}
@@ -75,7 +79,11 @@ jobs:
             libsdl2-image-dev \
             libsdl2-gfx-dev \
             libsdl2-mixer-dev \
-            libsdl2-net-dev
+            libsdl2-net-dev \
+            libflac-dev \
+            libjpeg-dev \
+            libtiff-dev \
+            libfluidsynth-dev
 
       - name: Set compiler (gcc)
         run: |
@@ -93,7 +101,8 @@ jobs:
           mkdir build
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE $ARCH   \
-                   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin
+                   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin   \
+                   -DBUILD_STATIC_LIBS=ON
 
       - name: Build
         working-directory: rte/build

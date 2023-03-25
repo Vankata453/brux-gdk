@@ -215,6 +215,7 @@ if(SDL2_MIXER_FOUND)
     set_target_properties(SDL2::Mixer PROPERTIES
                           IMPORTED_LOCATION "${SDL2_MIXER_LIBRARY}"
                           INTERFACE_INCLUDE_DIRECTORIES "${SDL2_MIXER_INCLUDE_DIR}"
-                          INTERFACE_LINK_LIBRARIES SDL2::Core)
+                          INTERFACE_LINK_LIBRARIES SDL2)
+    target_link_libraries(SDL2::Mixer INTERFACE FLAC fluidsynth modplug mpg123 ogg vorbisfile opusfile)
   endif()
 endif()
