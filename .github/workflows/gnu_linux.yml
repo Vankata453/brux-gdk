@@ -61,6 +61,7 @@ jobs:
             libsdl2-net-dev:i386 \
             libflac-dev:i386 \
             libjpeg-dev:i386 \
+            libpng-dev:i386 \
             libtiff-dev:i386 \
             libfluidsynth-dev:i386 \
             libwebp-dev:i386 \
@@ -87,6 +88,7 @@ jobs:
             libsdl2-net-dev \
             libflac-dev \
             libjpeg-dev \
+            libpng-dev \
             libtiff-dev \
             libfluidsynth-dev \
             libwebp-dev \
