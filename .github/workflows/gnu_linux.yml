@@ -38,17 +38,6 @@ jobs:
           sudo dpkg --add-architecture i386
           sudo apt-get update
 
-          # The Ubuntu 20.04 GitHub image adds a lot of unnecessary deb.sury.org packages,
-          # which causes issues installing dependencies for SDL2 and SDL2-mixer.
-          # Remove all that and downgrade to official versions.
-          sudo apt-get remove --yes php.*
-          sudo apt-get install --yes --allow-downgrades \
-            libpcre2-16-0:amd64=10.34-7 \
-            libpcre2-32-0:amd64=10.34-7 \
-            libpcre2-8-0:amd64=10.34-7 \
-            libpcre2-dev:amd64=10.34-7 \
-            libpcre2-posix2:amd64=10.34-7
-
           sudo apt-get install -y \
             cmake \
             build-essential \
