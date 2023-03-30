@@ -40,6 +40,12 @@ find_package(SDL2_net REQUIRED)
 include(ProvidePhysFS)
 include(ProvideSquirrel)
 
+# If static linking is enabled, link additional libraries
+if(BUILD_STATIC_LIBS)
+  target_link_libraries(SDL2::Image INTERFACE jpeg png tiff webp)
+  target_link_libraries(SDL2::Mixer INTERFACE FLAC fluidsynth modplug mpg123 ogg vorbisfile opusfile)
+endif()
+
 # Include additional scripts
 include(BuildMiniswigWrapper)
 
