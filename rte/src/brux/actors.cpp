@@ -79,20 +79,29 @@ void xyLoadActors() {
 	}
 
 	::deleteActor <- function(id) {
-		if(!actor.rawin(id)) return
+		if(!(id in actor)) return
+		if(typeof actor[id] == "table") return
 
 		__actor_delete_list__.push(id)
+		//actor[id] = false
 	}
 
 	::deleteAllActors <- function(ignorePersistent = false) {
+		if(ignorePersistent) {
+			actor.clear()
+			return
+		}
+
 		local didFind = true
+
+		if(actor.len() == 0) return
 
 		while(didFind) {
 			didFind = false
 			foreach(key, i in actor) {
 				if(typeof i == "table") continue
 
-				if(!i.persistent || ignorePersistent) {
+				if(("persistent" in i && !i.persistent)) {
 					didFind = true
 					__deleteActor_true__(key)
 				}
@@ -110,7 +119,7 @@ void xyLoadActors() {
 
 	::runActors <- function() {
 		foreach(i in actor) {
-			if(typeof i != "table") i.run()
+			if(typeof i != "table" && "run" in i && typeof i.run == "function") i.run()
 		}
 
 		for(local i = 0; i < __actor_delete_list__.len(); i++) {
@@ -120,9 +129,9 @@ void xyLoadActors() {
 	}
 
 	::checkActor <- function(id) {
+		if(!(id in actor) || actor[id] == false) return false
 		if(typeof id == "string") return actor.rawin(id) && actor[id].len() > 0
 		if(typeof id == "integer") return actor.rawin(id)
-
 	}
 
 	print("Imported actors lib."))rew";

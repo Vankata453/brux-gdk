@@ -88,16 +88,10 @@ int main(int argc, char* argv[]) {
 					//Check that the file really exists
 					if(xyLegacyFileExists(curarg)) {
 						//All checks pass, assign the file
-						xygapp = curarg;
-						size_t found = xygapp.find_last_of("/\\");
-						gvWorkDir = xygapp.substr(0, found);
-						if (chdir(gvWorkDir.c_str()) != 0) { // Check whether an error has occured
-							xyPrint(0, "Error initiating Brux: Cannot change to input file working directory: %d", errno);
-							xyEnd();
-							return 1;
-						}
 						const std::string curdir = xyGetDir();
 						xyPrint(0, "Working directory: %s", curdir.c_str());
+						xygapp = curarg;
+						gvWorkDir = curdir.c_str();
 					}
 				}
 			}
@@ -441,6 +435,23 @@ void xyUpdate() {
 
 	//Wait for FPS limit
 	//Update ticks counter for FPS
+#ifdef USE_CHRONO_STEADY_CLOCK
+	gvTicks = std::chrono::steady_clock::now();
+
+	std::chrono::duration<float> fLength = gvTicks - gvTickLast;
+	std::chrono::duration<float> max_delay = std::chrono::duration<float>(1.0f / gvMaxFPS);
+	if (fLength < max_delay) {
+		if (gvMaxFPS != 0)
+			std::this_thread::sleep_for((max_delay - fLength) - std::chrono::duration<float>(0.0001f));
+	}
+
+	//Calculate time since previous tick and adjust framerate
+	std::chrono::duration<float> timeSince = std::chrono::steady_clock::now() - gvTickLast;
+	gvFPS = 1.0f / timeSince.count();
+
+	// Update previous tick and increment frames
+	gvTickLast = std::chrono::steady_clock::now();
+#else
 	gvTicks = SDL_GetTicks();
 	Uint32 fLength = gvTicks - gvTickLast;
 	Uint32 max_delay = (1000 / gvMaxFPS);
@@ -452,6 +463,7 @@ void xyUpdate() {
 
 	if (fLength != 0) gvFPS = 1000 / static_cast<float>(SDL_GetTicks() - gvTickLast);
 	gvTickLast = SDL_GetTicks();
+#endif
 	gvFrames++;
 };
 
