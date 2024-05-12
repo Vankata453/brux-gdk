@@ -30,21 +30,17 @@ namespace BruxAPI {
 
 int newFont(int i, int c, int t, bool m, int k) {
 	// Sanitize inputs
-
 	if (i < 0) {
 		i = 0;
 	}
-
-	if (t > 255) {
+	else if (t > 255) {
 		t = 255;
 	}
-
-	if (c > 255) {
+	else if (c > 255) {
 		c = 255;
 	}
 
 	xyFont* newfont = new xyFont(i, static_cast<char>(c), static_cast<unsigned char>(t), m, k);
-
 	return newfont->getnum();
 }
 
@@ -62,5 +58,7 @@ SQInteger chint(HSQUIRRELVM v, int i) {
 	sq_pushstring(v, &s, 1);
 	return 1;
 }
+
+#undef FONT_CHECK_VALID
 
 } // namespace BruxAPI

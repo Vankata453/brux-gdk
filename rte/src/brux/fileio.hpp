@@ -25,6 +25,13 @@
 #include <string>
 #include <vector>
 
+#include <squirrel.h>
+
+namespace ssq {
+	class Array;
+	class VM;
+}
+
 // A class that takes the last PhysicsFS error and converts it to a readable message.
 
 class PhysFSError final: public std::exception {
@@ -53,6 +60,7 @@ std::string xyGetPrefDir(const std::string& org, const std::string& app);
 void xySetWriteDir(const std::string& dir);
 void xyCreateDir(const std::string& name);
 std::string xyFileRead(const std::string& file);
+std::string xyFileReadAPI(const std::string& file);
 void xyFileWrite(const std::string& file, const std::string& data);
 void xyFileAppend(const std::string& file, const std::string& data);
 bool xyFileExists(const std::string& file);
@@ -61,11 +69,13 @@ void xyFileDelete(const std::string& name);
 
 bool xyIsDirectory(const std::string& name);
 std::vector<std::string> xyListDirectory(const std::string& dir);
+ssq::Array xyListDirectoryAPI(const std::string& dir);
 
 // JSON encoding / decoding.
 // Originally implemented by Nova Storm.
 
-void sqDecodeJSONTable(HSQUIRRELVM v, cJSON* Item);
-void sqDecodeJSON(HSQUIRRELVM v, const char* str);
+SQInteger sqDecodeJSON(HSQUIRRELVM v, const std::string& str);
+
+void xyRegisterFileIOAPI(ssq::VM& vm);
 
 #endif

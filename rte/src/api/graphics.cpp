@@ -32,7 +32,6 @@ void clearScreen() {
 
 void setDrawTarget(int tex) {
 	xySetDrawTarget(tex);
-	gvDrawTarget = tex;
 }
 
 int getDrawTarget() {
@@ -52,7 +51,7 @@ void drawImagePart(int img, int x, int y, int ox, int oy, int w, int h) {
 }
 
 void drawImageEx(int img, int x, int y, float a, int f, int w, int h, int c) {
-	xyDrawImageEx(img, x, y, a, static_cast<SDL_RendererFlip>(f), w, h, 0, c);
+	xyDrawImageEx(img, x, y, a, static_cast<SDL_RendererFlip>(f), w, h, c);
 }
 
 void setDrawColor(int color) {

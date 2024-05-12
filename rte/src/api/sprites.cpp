@@ -101,6 +101,10 @@ int spriteH(int i) {
 	return vcSprites[i]->geth();
 }
 
+#undef SPRITE_CHECK_VALID
+#undef SPRITE_CHECK_VALID_VOID
+#undef SPRITE_CHECK_VALID_INT
+
 void replaceSprite(int s, const std::string& f, int w, int h, int m, int p, float x, float y) {
 	if (s <= 0 || s >= static_cast<int>(vcSprites.size())) {
 		return;

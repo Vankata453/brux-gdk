@@ -21,7 +21,13 @@
 #ifndef _CORE_H_
 #define _CORE_H_
 
+namespace ssq {
+	class VM;
+}
+
 void xyLoadCore();
 void xyLoadActors();
+
+void xyRegisterCoreAPI(ssq::VM& vm);
 
 #endif

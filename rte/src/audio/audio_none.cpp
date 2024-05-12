@@ -1,4 +1,4 @@
-//  Brux - Audio Portability API - Generic Fallback
+//  Brux - Audio Portability API - None
 //  Copyright (C) 2016 KelvinShadewing
 //  Copyright (C) 2023 hexaheximal
 //
@@ -15,11 +15,11 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "audio/audio.hpp"
-
 #ifndef USE_SDL2_MIXER
 
-const std::string& gvAudioDriver = "None";
+#include "audio/audio.hpp"
+
+const std::string gvAudioDriver = "None";
 
 // Checks if audio playback is currently available
 
@@ -152,6 +152,7 @@ int xyGetAudioChannels() {
 // Set the music volume
 
 void xySetMusicVolume(int volume) {
+	gvVolumeMusic = volume;
 	// We don't need to do anything here, as this doesn't actually play any audio
 }
 
