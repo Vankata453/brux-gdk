@@ -55,16 +55,6 @@ int main(int argc, char* argv[]) {
 		FS.chdir('/bin');
 	);
 #endif
-	// Initialize the file system (PhysFS)
-	xyFSInit();
-	
-	// Mount the current working directory.
-	xyFSMount(xyGetDir(), "/", true);
-
-	// Set the current write directory to a default for Brux.
-	// Can be changed later by the game.
-	xySetWriteDir(xyGetPrefDir("brux", "brux"));
-
 	// Process arguments
 
 	std::string xygapp = "";
@@ -118,6 +108,16 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
+
+	// Initialize the file system (PhysFS)
+	xyFSInit();
+
+	// Mount the current working directory.
+	xyFSMount(xyGetDir(), "/", true);
+
+	// Set the current write directory to a default for Brux.
+	// Can be changed later by the game.
+	xySetWriteDir(xyGetPrefDir("brux", "brux"));
 
 	bool shouldLoad = false;
 	
