@@ -412,7 +412,7 @@ void xyReplaceSprite(int s, const std::string& f, int w, int h, int m, int p, fl
 		vcSprites[s]->replaceSprite(f, w, h, m, p, x, y);
 		return;
 	}
-	
+
 	vcSprites[s] = new xySprite(f, w, h, m, p, x, y);
 }
 

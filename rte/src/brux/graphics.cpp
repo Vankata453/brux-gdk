@@ -542,7 +542,7 @@ int xyScreenH() {
 
 int xyWindowW() {
 	int w;
-	
+
 	SDL_GetWindowSize(gvWindow, &w, 0);
 
 	return w;
@@ -554,7 +554,7 @@ int xyWindowH() {
 	int h;
 
 	SDL_GetWindowSize(gvWindow, 0, &h);
-	
+
 	return h;
 }
 
@@ -609,7 +609,7 @@ std::string xyGetTextureName(int texture) {
 	if (texture > 0 && texture < vcTextureNames.size()) {
 		return vcTextureNames[texture];
 	}
-	
+
 	return "";
 }
 
