@@ -124,7 +124,7 @@ void xySetSoundVolume(int volume);
 
 // Get the current audio driver
 
-const std::string& xyGetAudioDriver();
+std::string xyGetAudioDriver();
 
 
 void xyRegisterAudioAPI(ssq::VM& vm);

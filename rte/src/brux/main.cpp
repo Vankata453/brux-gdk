@@ -169,9 +169,7 @@ int main(int argc, char* argv[]) {
 	SDL_ShowCursor(0);
 	
 	try {
-		xyPrint("Running %s...", xygapp.c_str());
-		ssq::Script script = gvSquirrel.compileFile(xygapp.c_str());
-		gvSquirrel.run(script);
+		xyDonut(xygapp);
 	}
 	catch (const std::exception& err) {
 		xyPrint("Error running '%s': %s", xygapp.c_str(), err.what());

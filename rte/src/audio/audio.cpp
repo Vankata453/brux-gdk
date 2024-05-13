@@ -38,7 +38,7 @@ void xySetSoundVolume(int volume) {
 
 // Get the current audio driver
 
-const std::string& xyGetAudioDriver() {
+std::string xyGetAudioDriver() {
 	return gvAudioDriver;
 }
 

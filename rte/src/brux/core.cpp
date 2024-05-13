@@ -518,9 +518,7 @@ void xyDonut(const std::string& file) {
 void xyRequire(const std::string& file) {
 	gvDidError = false;
 
-	xyPrint("Running %s...", file.c_str());
-	ssq::Script script = gvSquirrel.compileFile(file.c_str());
-	gvSquirrel.run(script);
+	xyDonut(file);
 
 	if(gvDidError)
 		xyEnd();
