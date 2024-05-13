@@ -43,7 +43,7 @@ public:
 /** API */
 int xyNewFont(int i, int c, int t, bool m, int k);
 void xyDrawText(int f, float x, float y, const std::string& s);
-char xyChint(int i);
+std::string xyChint(int i);
 
 void xyRegisterTextAPI(ssq::VM& vm);
 

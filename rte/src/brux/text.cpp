@@ -188,8 +188,8 @@ void xyDrawText(int f, float x, float y, const std::string& s) {
 
 #undef FONT_CHECK_VALID
 
-char xyChint(int i) {
-	return static_cast<char>(i);
+std::string xyChint(int i) {
+	return std::string(1, static_cast<char>(i));
 }
 
 
