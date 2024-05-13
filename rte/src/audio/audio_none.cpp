@@ -15,9 +15,9 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef USE_SDL2_MIXER
-
 #include "audio/audio.hpp"
+
+#ifndef USE_SDL2_MIXER
 
 const std::string gvAudioDriver = "None";
 
